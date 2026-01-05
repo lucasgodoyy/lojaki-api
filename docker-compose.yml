@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: lucas
+      POSTGRES_PASSWORD: lg131001
+      POSTGRES_DB: lojaki_db
+    ports:
+      - "5434:5434"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
