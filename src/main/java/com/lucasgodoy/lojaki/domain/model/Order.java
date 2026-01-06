@@ -1,6 +1,7 @@
 package com.lucasgodoy.lojaki.domain.model;
 
 import com.lucasgodoy.lojaki.domain.enums.OrderStatus;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -10,41 +11,34 @@ import java.util.UUID;
 /**
  * Represents a customer order.
  */
+
+@Entity
+@Table(name = "orders")
 public class Order {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    private List<OrderItem> items;
+
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
     private boolean active;
 
-    protected Order() {
-        this.items = new ArrayList<>();
-    }
+    protected Order() {}
 
     public Order(UUID id, User user) {
         this.id = id;
         this.user = user;
-        this.items = new ArrayList<>();
+
         this.status = OrderStatus.PENDING;
         this.active = true;
     }
 
-    /**
-     * Adds an item to the order.
-     */
-    public void addItem(OrderItem item) {
-        this.items.add(item);
-    }
-
-    /**
-     * Calculates the total value of the order.
-     */
-    public BigDecimal total() {
-        return items.stream()
-                .map(OrderItem::total)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
 
     /**
      * Changes the status of the order.
@@ -70,9 +64,6 @@ public class Order {
         return user;
     }
 
-    public List<OrderItem> getItems() {
-        return items;
-    }
 
     public OrderStatus getStatus() {
         return status;

@@ -1,48 +1,112 @@
 package com.lucasgodoy.lojaki.domain.model;
 
-import com.lucasgodoy.lojaki.domain.enums.UserRole;
-
 import java.util.UUID;
 
+/**
+ * Represents a system user.
+ *
+ * This class belongs to the Domain layer and contains only
+ * business rules and invariants.
+ *
+ * It does NOT depend on frameworks, persistence, or infrastructure.
+ */
 public class User {
 
-    private UUID id;
-    private String name;
-    private String email;
-    private UserRole role;
+    /**
+     * Unique identifier of the user.
+     */
+    private final UUID id;
+
+    /**
+     * User email address.
+     * Used as the main identification credential.
+     */
+    private final String email;
+
+    /**
+     * User role within the system.
+     * Defines permissions and access level.
+     */
+    private final Role role;
+
+    /**
+     * Indicates whether the user account is active.
+     */
     private boolean active;
 
-    protected User() {}
+    /**
+     * Protected constructor required by some frameworks
+     * (e.g. JPA, serialization tools).
+     *
+     * Not intended for direct use.
+     */
+    protected User() {
+        this.id = null;
+        this.email = null;
+        this.role = null;
+    }
 
-    public User(UUID id, String name, String email, UserRole role) {
+    /**
+     * Creates a valid user instance.
+     *
+     * Business rules:
+     * - Email is mandatory
+     * - Role is mandatory
+     * - User starts as active by default
+     *
+     * @param id    unique identifier
+     * @param email user email
+     * @param role  user role
+     */
+    public User(UUID id, String email, Role role) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+
+        if (role == null) {
+            throw new IllegalArgumentException("Role is required");
+        }
+
         this.id = id;
-        this.name = name;
         this.email = email;
         this.role = role;
         this.active = true;
     }
 
     /**
-     * Deactivate the user.
+     * Deactivates the user account.
      */
     public void deactivate() {
         this.active = false;
     }
 
-    // Getters
-    public UUID getId() {
-        return id;
+    /**
+     * Reactivates the user account.
+     */
+    public void activate() {
+        this.active = true;
     }
 
-    public String getName() {
-        return name;
+    /**
+     * Checks if the user has administrator privileges.
+     *
+     * @return true if the user is an admin
+     */
+    public boolean isAdmin() {
+        return role == Role.ADMIN;
+    }
+
+    // Getters
+
+    public UUID getId() {
+        return id;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public UserRole getRole() {
+    public Role getRole() {
         return role;
     }
 
