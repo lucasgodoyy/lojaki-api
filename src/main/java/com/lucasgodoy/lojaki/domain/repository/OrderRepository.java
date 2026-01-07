@@ -1,6 +1,6 @@
 package com.lucasgodoy.lojaki.domain.repository;
 
-import com.lucasgodoy.lojaki.domain.model.Order;
+import com.lucasgodoy.lojaki.domain.order.model.Order;
 import java.util.UUID;
 import java.util.List;
 

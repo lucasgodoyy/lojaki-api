@@ -1,11 +1,8 @@
-package com.lucasgodoy.lojaki.domain.model;
+package com.lucasgodoy.lojaki.domain.order.model;
 
-import com.lucasgodoy.lojaki.domain.enums.OrderStatus;
+import com.lucasgodoy.lojaki.domain.user.model.User;
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -25,7 +22,7 @@ public class Order {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private Status status;
 
     private boolean active;
 
@@ -35,7 +32,7 @@ public class Order {
         this.id = id;
         this.user = user;
 
-        this.status = OrderStatus.PENDING;
+        this.status = Status.PENDING;
         this.active = true;
     }
 
@@ -43,7 +40,7 @@ public class Order {
     /**
      * Changes the status of the order.
      */
-    public void setStatus(OrderStatus status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -52,7 +49,7 @@ public class Order {
      */
     public void deactivate() {
         this.active = false;
-        this.status = OrderStatus.CANCELLED;
+        this.status = Status.CANCELLED;
     }
 
     // Getters
@@ -65,7 +62,7 @@ public class Order {
     }
 
 
-    public OrderStatus getStatus() {
+    public Status getStatus() {
         return status;
     }
 

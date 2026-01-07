@@ -1,4 +1,4 @@
-package com.lucasgodoy.lojaki.domain.model;
+package com.lucasgodoy.lojaki.domain.user.model;
 
 import java.util.UUID;
 
@@ -73,6 +73,7 @@ public class User {
         this.active = true;
     }
 
+    // ===== Business Methods =====
     /**
      * Deactivates the user account.
      */
@@ -96,21 +97,9 @@ public class User {
         return role == Role.ADMIN;
     }
 
-    // Getters
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
+    // ===== Getters =====
+    public UUID getId() { return id; }
+    public String getEmail() { return email; }
+    public Role getRole() { return role; }
+    public boolean isActive() { return active; }
 }

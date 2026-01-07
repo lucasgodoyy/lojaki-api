@@ -1,4 +1,4 @@
-package com.lucasgodoy.lojaki.domain.valueObject;
+package com.lucasgodoy.lojaki.domain.product.valueobject;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

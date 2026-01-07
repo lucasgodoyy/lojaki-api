@@ -1,4 +1,6 @@
-package com.lucasgodoy.lojaki.domain.model;
+package com.lucasgodoy.lojaki.domain.order.model;
+
+import com.lucasgodoy.lojaki.domain.product.model.Product;
 
 import java.math.BigDecimal;
 import java.util.UUID;

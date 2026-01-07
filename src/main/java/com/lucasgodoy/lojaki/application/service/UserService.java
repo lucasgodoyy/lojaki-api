@@ -1,6 +1,6 @@
 package com.lucasgodoy.lojaki.application.service;
 
-import com.lucasgodoy.lojaki.domain.model.User;
+import com.lucasgodoy.lojaki.domain.user.model.User;
 import com.lucasgodoy.lojaki.domain.repository.UserRepository;
 import java.util.List;
 import java.util.UUID;

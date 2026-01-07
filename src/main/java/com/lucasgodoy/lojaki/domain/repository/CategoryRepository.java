@@ -1,6 +1,6 @@
 package com.lucasgodoy.lojaki.domain.repository;
 
-import com.lucasgodoy.lojaki.domain.model.Category;
+import com.lucasgodoy.lojaki.domain.product.model.Category;
 import java.util.UUID;
 import java.util.List;
 

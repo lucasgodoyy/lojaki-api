@@ -1,4 +1,4 @@
-package com.lucasgodoy.lojaki.domain.model;
+package com.lucasgodoy.lojaki.domain.product.model;
 
 import com.lucasgodoy.lojaki.domain.exception.DomainException;
 
