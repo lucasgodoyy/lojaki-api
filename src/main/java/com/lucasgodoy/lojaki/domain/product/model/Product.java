@@ -1,6 +1,8 @@
 package com.lucasgodoy.lojaki.domain.product.model;
 
 import com.lucasgodoy.lojaki.domain.exception.DomainException;
+import com.lucasgodoy.lojaki.domain.product.valueobject.Money;
+
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -37,14 +39,9 @@ public class Product {
     private String description;
 
     /**
-     * Product price amount. Required, must be >= 0.
+     * Product price as a value object.
      */
-    private BigDecimal priceAmount;
-
-    /**
-     * Product price currency. Required. Default is "AUD".
-     */
-    private String priceCurrency;
+    private Money price;
 
     /**
      * Associated Category. Can be null.
@@ -75,15 +72,13 @@ public class Product {
     private Product(UUID id,
                     String name,
                     String description,
-                    BigDecimal priceAmount,
-                    String priceCurrency,
+                    Money price,
                     Category category) {
-        validate(name, priceAmount, priceCurrency);
+        validate(name, price);
         this.id = id;
         this.name = name;
         this.description = description;
-        this.priceAmount = priceAmount;
-        this.priceCurrency = priceCurrency;
+        this.price = price;
         this.category = category;
         this.active = true;
         this.deletedAt = null;
@@ -95,41 +90,36 @@ public class Product {
     /**
      * Creates a new Product instance.
      *
-     * @param name Name of the product
-     * @param description Optional description
-     * @param priceAmount Price amount (>= 0)
-     * @param priceCurrency Currency code (BRL, USD, etc.)
-     * @param category Optional category
+     * @param name Name of the product (3-100 characters)
+     * @param description Optional description of the product
+     * @param price Price of the product as a Money value object
+     * @param category Optional associated category
      * @return New Product instance
      */
     public static Product create(String name,
                                  String description,
-                                 BigDecimal priceAmount,
-                                 String priceCurrency,
+                                 Money price,
                                  Category category) {
-        return new Product(UUID.randomUUID(), name, description, priceAmount, priceCurrency, category);
+        return new Product(UUID.randomUUID(), name, description, price, category);
     }
 
     // ===== Business Methods =====
     /**
-     * Updates product details. Price and category can be updated.
+     * Updates product details. Price and category can also be updated.
      *
-     * @param name New name
-     * @param description New description
-     * @param priceAmount New price amount
-     * @param priceCurrency New price currency
-     * @param category New category
+     * @param name New name (3-100 characters)
+     * @param description New optional description
+     * @param price New price as a Money value object
+     * @param category New optional category
      */
     public void update(String name,
                        String description,
-                       BigDecimal priceAmount,
-                       String priceCurrency,
+                       Money price,
                        Category category) {
-        validate(name, priceAmount, priceCurrency);
+        validate(name, price);
         this.name = name;
         this.description = description;
-        this.priceAmount = priceAmount;
-        this.priceCurrency = priceCurrency;
+        this.price = price;
         this.category = category;
         this.updatedAt = Instant.now();
     }
@@ -161,16 +151,21 @@ public class Product {
     }
 
     // ===== Validation =====
-    private void validate(String name, BigDecimal priceAmount, String priceCurrency) {
+    private void validate(String name, Money price) {
         if (name == null || name.trim().length() < 3 || name.trim().length() > 100) {
             throw new DomainException("Product name is required and must be between 3 and 100 characters");
         }
-        if (priceAmount == null || priceAmount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new DomainException("Price amount is required and must be >= 0");
+        if (price == null) {
+            throw new DomainException("Price is required");
         }
-        if (priceCurrency == null || priceCurrency.trim().isEmpty()) {
-            throw new DomainException("Price currency is required");
+        if (price.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new DomainException("Price amount must be >= 0");
         }
+        if (price.getCurrency() == null) {
+            throw new DomainException("Currency is required");
+        }
+
+
 
     }
 
@@ -181,9 +176,7 @@ public class Product {
 
     public String getDescription() { return description; }
 
-    public BigDecimal getPriceAmount() { return priceAmount; }
-
-    public String getPriceCurrency() { return priceCurrency; }
+    public Money getPrice() { return price; }
 
     public Category getCategory() { return category; }
 
