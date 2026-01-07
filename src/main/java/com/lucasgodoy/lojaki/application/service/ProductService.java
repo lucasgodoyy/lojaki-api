@@ -1,9 +1,8 @@
 package com.lucasgodoy.lojaki.application.service;
 
-import com.lucasgodoy.lojaki.domain.model.Product;
+import com.lucasgodoy.lojaki.domain.product.model.Product;
 import com.lucasgodoy.lojaki.domain.repository.ProductRepository;
 import java.util.List;
-import java.util.UUID;
 
 // Service layer for Product entity
 public class ProductService {
@@ -29,10 +28,6 @@ public class ProductService {
         productRepository.delete(product);
     }
 
-    // Finds a product by ID
-    public Product getProductById(UUID id) {
-        return productRepository.findById(id);
-    }
 
     // Lists all products
     public List<Product> listAllProducts() {
