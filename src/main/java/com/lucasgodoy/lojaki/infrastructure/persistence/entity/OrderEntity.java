@@ -2,96 +2,92 @@ package com.lucasgodoy.lojaki.infrastructure.persistence.entity;
 
 import com.lucasgodoy.lojaki.domain.order.model.Status;
 import jakarta.persistence.*;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * JPA Entity representing an order for persistence.
+ * JPA Entity representing an Order for persistence.
  *
- * This class maps the Order domain model to the database.
- * It contains no business logic, only persistence-related annotations.
+ * Maps to the "orders" table in the database.
+ * Each order belongs to a user and optionally to a store.
+ * Each order has multiple OrderItems.
  */
 @Entity
 @Table(name = "orders")
 public class OrderEntity {
 
-    /**
-     * Unique identifier of the order.
-     * Automatically generated as UUID.
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    /**
-     * User who placed the order.
-     * Many orders can belong to one user.
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
+    // ===== Relationships =====
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    /**
-     * List of products in the order.
-     * Many-to-many relationship with join table order_products.
-     */
-    @ManyToMany
-    @JoinTable(
-            name = "order_products",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private List<ProductEntity> products;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id")
+    private StoreEntity store;
 
-    /**
-     * Current status of the order.
-     */
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItemEntity> items = new ArrayList<>();
+
+    // ===== Fields =====
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
 
-    /**
-     * Indicates whether the order is active.
-     */
     @Column(nullable = false)
     private boolean active;
 
-    /**
-     * Default constructor required by JPA.
-     */
-    protected OrderEntity() {}
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 
-    /**
-     * Constructor to create an OrderEntity instance.
-     *
-     * @param id       unique identifier
-     * @param user     associated user entity
-     * @param products list of product entities
-     * @param status   order status
-     * @param active   whether the order is active
-     */
-    public OrderEntity(UUID id, UserEntity user, List<ProductEntity> products, Status status, boolean active) {
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    // ===== Constructors =====
+    protected OrderEntity() {
+        // JPA default constructor
+    }
+
+    public OrderEntity(UUID id, UserEntity user, StoreEntity store, List<OrderItemEntity> items,
+                       Status status, boolean active, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.user = user;
-        this.products = products;
+        this.store = store;
+        this.items = items != null ? items : new ArrayList<>();
         this.status = status;
         this.active = active;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     // ===== Getters and Setters =====
-
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
     public UserEntity getUser() { return user; }
     public void setUser(UserEntity user) { this.user = user; }
 
-    public List<ProductEntity> getProducts() { return products; }
-    public void setProducts(List<ProductEntity> products) { this.products = products; }
+    public StoreEntity getStore() { return store; }
+    public void setStore(StoreEntity store) { this.store = store; }
+
+    public List<OrderItemEntity> getItems() { return items; }
+    public void setItems(List<OrderItemEntity> items) { this.items = items; }
 
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
 
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
+
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

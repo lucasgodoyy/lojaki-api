@@ -5,8 +5,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * JPA entity representing the Customer-Store association.
- * Maps to the "customer_store" table in the database.
+ * JPA entity representing the association between Customer and Store.
+ *
+ * This is the join table for the many-to-many relationship.
+ * Each CustomerStore links one Customer to one Store.
  */
 @Entity
 @Table(name = "customer_store")
@@ -16,25 +18,38 @@ public class CustomerStoreEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    /**
+     * Associated Customer.
+     */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
     private CustomerEntity customer;
 
+    /**
+     * Associated Store.
+     */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "store_id", nullable = false)
     private StoreEntity store;
 
+    /**
+     * Timestamp of creation.
+     */
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    /**
+     * Timestamp of last update.
+     */
     @Column(name = "updated_at")
     private Instant updatedAt;
 
     // ===== Constructors =====
-    protected CustomerStoreEntity() {}
+    protected CustomerStoreEntity() {
+        // JPA requires default constructor
+    }
 
-    public CustomerStoreEntity(UUID id, CustomerEntity customer, StoreEntity store,
-                               Instant createdAt, Instant updatedAt) {
+    public CustomerStoreEntity(UUID id, CustomerEntity customer, StoreEntity store, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.customer = customer;
         this.store = store;
@@ -42,7 +57,10 @@ public class CustomerStoreEntity {
         this.updatedAt = updatedAt;
     }
 
-    // ===== Getters / Setters =====
+
+
+
+    // ===== Getters and Setters =====
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 

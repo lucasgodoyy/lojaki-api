@@ -11,6 +11,9 @@ import java.util.UUID;
  *
  * A Customer is associated with a User (1:1) and contains
  * profile information such as name, phone, and optional document.
+ *
+ * Relationships:
+ * - 1 Customer : 1 UserEntity
  */
 @Entity
 @Table(name = "customers")
@@ -52,9 +55,7 @@ public class CustomerEntity {
     private Instant updatedAt;
 
     // ===== Constructors =====
-    protected CustomerEntity() {
-        // JPA requires a default constructor
-    }
+    protected CustomerEntity() { }
 
     public CustomerEntity(UUID id,
                           UserEntity user,
