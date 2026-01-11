@@ -2,6 +2,7 @@ package com.lucasgodoy.lojaki.domain.product.model;
 
 import com.lucasgodoy.lojaki.domain.exception.DomainException;
 import com.lucasgodoy.lojaki.domain.product.valueobject.Money;
+import com.lucasgodoy.lojaki.domain.store.model.Brand;
 
 
 import java.math.BigDecimal;
@@ -44,6 +45,11 @@ public class Product {
     private Money price;
 
     /**
+     * Associated Brand. Can be null.
+     */
+    private Brand brand;
+
+    /**
      * Associated Category. Can be null.
      */
     private Category category;
@@ -73,12 +79,14 @@ public class Product {
                     String name,
                     String description,
                     Money price,
+                    Brand brand,
                     Category category) {
         validate(name, price);
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
+        this.brand = brand;
         this.category = category;
         this.active = true;
         this.deletedAt = null;
@@ -99,8 +107,9 @@ public class Product {
     public static Product create(String name,
                                  String description,
                                  Money price,
+                                 Brand brand,
                                  Category category) {
-        return new Product(UUID.randomUUID(), name, description, price, category);
+        return new Product(UUID.randomUUID(), name, description, price, brand, category);
     }
 
     // ===== Business Methods =====
@@ -115,11 +124,13 @@ public class Product {
     public void update(String name,
                        String description,
                        Money price,
+                       Brand brand,
                        Category category) {
         validate(name, price);
         this.name = name;
         this.description = description;
         this.price = price;
+        this.brand = brand;
         this.category = category;
         this.updatedAt = Instant.now();
     }
@@ -164,7 +175,9 @@ public class Product {
         if (price.getCurrency() == null) {
             throw new DomainException("Currency is required");
         }
-
+        if (brand == null) {
+            throw new DomainException("Brand is required");
+        }
 
 
     }
@@ -177,6 +190,10 @@ public class Product {
     public String getDescription() { return description; }
 
     public Money getPrice() { return price; }
+
+    public Brand getBrand() {
+        return brand;
+    }
 
     public Category getCategory() { return category; }
 

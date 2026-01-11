@@ -2,6 +2,7 @@ package com.lucasgodoy.lojaki.infrastructure.persistence.entity;
 
 import com.lucasgodoy.lojaki.domain.product.model.Category;
 import com.lucasgodoy.lojaki.domain.product.valueobject.Money;
+import com.lucasgodoy.lojaki.domain.store.model.Brand;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -28,6 +29,10 @@ public class ProductEntity {
     @Embedded
     private Money price;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "brand_id", nullable = false)
+    private BrandEntity brand;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
@@ -45,12 +50,13 @@ public class ProductEntity {
     // ===== Constructors =====
     protected ProductEntity() {}
 
-    public ProductEntity(UUID id, String name, String description, Money price, CategoryEntity category,
+    public ProductEntity(UUID id, String name, String description, Money price, BrandEntity brand, CategoryEntity category,
                          boolean active, Instant createdAt, Instant updatedAt, Instant deletedAt) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
+        this.brand = brand;
         this.category = category;
         this.active = active;
         this.createdAt = createdAt;
@@ -67,6 +73,12 @@ public class ProductEntity {
     public void setDescription(String description) { this.description = description; }
     public Money getPrice() { return price; }
     public void setPrice(Money price) { this.price = price; }
+
+    public BrandEntity getBrand() {
+        return brand;
+    }
+    public void setBrand(BrandEntity brand) { this.brand = brand; }
+
     public CategoryEntity getCategory() { return category; }
     public void setCategory(CategoryEntity category) { this.category = category; }
     public boolean isActive() { return active; }
