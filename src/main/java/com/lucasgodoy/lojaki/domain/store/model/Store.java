@@ -10,11 +10,11 @@ import java.util.UUID;
  * This class belongs to the Domain layer and contains only business rules.
  * It does NOT depend on frameworks, persistence, or infrastructure.
  *
- * A Store can sell products from multiple brands.
- * Product listings are handled via StoreItem (separate concept).
- *
- * Relationships:
- * - 1 Store : N StoreItems
+ * - Store owns multiple Customers
+ * - Store owns multiple Brands
+ * - Store owns multiple Categories
+ * - Store owns multiple Products
+ * - Store owns multiple Orders
  */
 public class Store {
 
@@ -60,21 +60,21 @@ public class Store {
     }
 
     // ===== Factory Method =====
-
     /**
-     * Creates a new Store.
+     * Creates a new Store instance.
      *
-     * @param name Store name
-     * @return New Store instance
+     * @param name Store name (2-100 characters)
+     * @return New Store
      */
     public static Store create(String name) {
         return new Store(UUID.randomUUID(), name);
     }
 
     // ===== Business Methods =====
-
     /**
-     * Updates store name.
+     * Updates the store name.
+     *
+     * @param name New store name
      */
     public void update(String name) {
         validate(name);

@@ -5,13 +5,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Represents a brand in the system.
+ * Represents a brand owned by a store.
  *
  * This class belongs to the Domain layer and contains only
  * business rules and invariants.
  *
- * It does NOT depend on frameworks, persistence, or infrastructure.
- *
+ * Shopify-like model:
+ * - Brand belongs to ONE Store
+ * - Products can reference a Brand
  */
 public class Brand {
 
@@ -19,6 +20,11 @@ public class Brand {
      * Unique identifier of the brand.
      */
     private final UUID id;
+
+    /**
+     * Store that owns this brand.
+     */
+    private final Store store;
 
     /**
      * Name of the brand. Required, 2-100 characters.
@@ -46,9 +52,10 @@ public class Brand {
     private Instant updatedAt;
 
     // ===== Private Constructor =====
-    private Brand(UUID id, String name) {
-        validateName(name);
+    private Brand(UUID id, Store store, String name) {
+        validate(store, name);
         this.id = id;
+        this.store = store;
         this.name = name;
         this.active = true;
         this.deletedAt = null;
@@ -57,27 +64,48 @@ public class Brand {
     }
 
     // ===== Factory Method =====
-    public static Brand create(String name) {
-        return new Brand(UUID.randomUUID(), name);
+    /**
+     * Creates a new Brand instance.
+     *
+     * @param store Store that owns the brand
+     * @param name  Brand name (2-100 characters)
+     * @return New Brand instance
+     */
+    public static Brand create(Store store, String name) {
+        return new Brand(UUID.randomUUID(), store, name);
     }
 
     // ===== Business Methods =====
+    /**
+     * Updates the brand name.
+     *
+     * @param name New brand name
+     */
     public void update(String name) {
-        validateName(name);
+        validate(this.store, name);
         this.name = name;
         this.updatedAt = Instant.now();
     }
 
+    /**
+     * Activates the brand.
+     */
     public void activate() {
         this.active = true;
         this.updatedAt = Instant.now();
     }
 
+    /**
+     * Deactivates the brand.
+     */
     public void deactivate() {
         this.active = false;
         this.updatedAt = Instant.now();
     }
 
+    /**
+     * Soft deletes the brand.
+     */
     public void softDelete() {
         this.deletedAt = Instant.now();
         this.active = false;
@@ -85,7 +113,10 @@ public class Brand {
     }
 
     // ===== Validation =====
-    private void validateName(String name) {
+    private void validate(Store store, String name) {
+        if (store == null) {
+            throw new IllegalArgumentException("Store is required for Brand");
+        }
         if (name == null || name.trim().length() < 2 || name.trim().length() > 100) {
             throw new IllegalArgumentException("Brand name must be between 2 and 100 characters");
         }
@@ -93,6 +124,7 @@ public class Brand {
 
     // ===== Getters =====
     public UUID getId() { return id; }
+    public Store getStore() { return store; }
     public String getName() { return name; }
     public boolean isActive() { return active; }
     public Instant getDeletedAt() { return deletedAt; }

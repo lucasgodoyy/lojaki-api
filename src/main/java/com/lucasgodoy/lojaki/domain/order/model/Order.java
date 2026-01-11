@@ -1,16 +1,21 @@
 package com.lucasgodoy.lojaki.domain.order.model;
 
+import com.lucasgodoy.lojaki.domain.store.model.Store;
 import com.lucasgodoy.lojaki.domain.user.model.User;
-import com.lucasgodoy.lojaki.domain.product.model.Product;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Represents a customer order in the domain layer.
+ * Represents a customer order in the system.
  *
- * This class belongs to the Domain layer and contains only business rules.
- * It does NOT depend on persistence frameworks or infrastructure.
+ * Shopify-like model:
+ * - Order belongs to ONE Store
+ * - Order references ONE User (customer)
+ * - Order has N OrderItems
  */
 public class Order {
 
@@ -20,14 +25,19 @@ public class Order {
     private final UUID id;
 
     /**
-     * User who placed the order.
+     * Store where the order is placed.
+     */
+    private final Store store;
+
+    /**
+     * Customer who placed the order.
      */
     private final User user;
 
     /**
-     * List of products included in the order.
+     * List of items in the order.
      */
-    private final List<Product> products;
+    private final List<OrderItem> items;
 
     /**
      * Current status of the order.
@@ -40,70 +50,84 @@ public class Order {
     private boolean active;
 
     /**
-     * Protected constructor required for frameworks or serialization.
+     * Timestamp of order creation.
      */
-    protected Order() {
-        this.id = null;
-        this.user = null;
-        this.products = null;
-    }
+    private final Instant createdAt;
 
     /**
-     * Creates a new order with a user and products.
-     *
-     * Business rules:
-     * - User is mandatory
-     * - At least one product is required
-     * - Orders start with PENDING status and active=true
-     *
-     * @param id       unique identifier
-     * @param user     user placing the order
-     * @param products list of products
+     * Timestamp of last update.
      */
-    public Order(UUID id, User user, List<Product> products) {
-        if (user == null) throw new IllegalArgumentException("User is required");
-        if (products == null || products.isEmpty()) throw new IllegalArgumentException("At least one product is required");
+    private Instant updatedAt;
 
+    // ===== Private Constructor =====
+    private Order(UUID id, Store store, User user, List<OrderItem> items) {
+        validate(store, user, items);
         this.id = id;
+        this.store = store;
         this.user = user;
-        this.products = products;
+        this.items = new ArrayList<>(items);
         this.status = Status.PENDING;
         this.active = true;
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
+
+    // ===== Factory Method =====
+    public static Order create(Store store, User user, List<OrderItem> items) {
+        return new Order(UUID.randomUUID(), store, user, items);
     }
 
     // ===== Business Methods =====
-
-    /**
-     * Cancels the order.
-     * Sets status to CANCELLED and active to false.
-     */
     public void cancel() {
         this.active = false;
         this.status = Status.CANCELLED;
+        this.updatedAt = Instant.now();
     }
 
-    /**
-     * Completes the order.
-     * Sets status to DELIVERED.
-     */
     public void complete() {
         this.status = Status.DELIVERED;
+        this.updatedAt = Instant.now();
     }
 
-    /**
-     * Updates the order status.
-     *
-     * @param status new status
-     */
     public void setStatus(Status status) {
         this.status = status;
+        this.updatedAt = Instant.now();
+    }
+
+    public void addItem(OrderItem item) {
+        if (item == null) throw new IllegalArgumentException("OrderItem cannot be null");
+        this.items.add(item);
+        this.updatedAt = Instant.now();
+    }
+
+    // ===== Validation =====
+    private void validate(Store store, User user, List<OrderItem> items) {
+        if (store == null) throw new IllegalArgumentException("Store is required");
+        if (user == null) throw new IllegalArgumentException("User is required");
+        if (items == null || items.isEmpty()) throw new IllegalArgumentException("Order must have at least one item");
     }
 
     // ===== Getters =====
-
     public UUID getId() { return id; }
+    public Store getStore() { return store; }
     public User getUser() { return user; }
-    public List<Product> getProducts() { return products; }
+    public List<OrderItem> getItems() { return items; }
     public Status getStatus() { return status; }
     public boolean isActive() { return active; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
+
+    // ===== Equals and HashCode =====
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Order)) return false;
+        Order order = (Order) o;
+        return Objects.equals(id, order.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

@@ -1,24 +1,22 @@
 package com.lucasgodoy.lojaki.domain.customer.model;
 
 import com.lucasgodoy.lojaki.domain.user.model.User;
+import com.lucasgodoy.lojaki.domain.store.model.Store;
 import com.lucasgodoy.lojaki.domain.exception.DomainException;
 
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Represents a customer in the system.
- *
- * A Customer is a system user with role CUSTOMER and contains
- * additional profile information such as name and contact details.
+ * Represents a customer owned by a store.
  *
  * This class belongs to the Domain layer and contains only
  * business rules and invariants.
  *
- * It does NOT depend on frameworks, persistence, or infrastructure.
  *
- * Relationships:
- * - 1 Customer : 1 User (must have role CUSTOMER)
+ * - Customer belongs to ONE Store
+ * - Customer references ONE User (1:1 relationship)
+ * - Customer has profile info: firstName, lastName, phone, document
  */
 public class Customer {
 
@@ -28,18 +26,23 @@ public class Customer {
     private final UUID id;
 
     /**
+     * Store that owns this customer.
+     */
+    private final Store store;
+
+    /**
      * Associated system user (1:1 relationship).
      * Must have role CUSTOMER.
      */
     private final User user;
 
     /**
-     * Customer's first name. Required, at least 2 characters.
+     * Customer's first name. Required.
      */
     private String firstName;
 
     /**
-     * Customer's last name. Required, at least 2 characters.
+     * Customer's last name. Required.
      */
     private String lastName;
 
@@ -50,14 +53,22 @@ public class Customer {
 
     /**
      * Customer document (CPF/CNPJ). Optional.
-     * Only set when needed, e.g., during payment or billing.
      */
     private String document;
 
     // ===== Private Constructor =====
-    private Customer(UUID id, User user, String firstName, String lastName, String phone, String document) {
-        validate(user, firstName, lastName, phone);
+    private Customer(UUID id,
+                     Store store,
+                     User user,
+                     String firstName,
+                     String lastName,
+                     String phone,
+                     String document) {
+
+        validate(store, user, firstName, lastName, phone);
+
         this.id = id;
+        this.store = store;
         this.user = user;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -69,14 +80,28 @@ public class Customer {
     /**
      * Creates a new Customer instance with generated UUID.
      *
+     * @param store     Store that owns the customer
      * @param user      Associated User (must have CUSTOMER role)
      * @param firstName First name (required, min 2 chars)
      * @param lastName  Last name (required, min 2 chars)
      * @param phone     Phone number (required)
      * @return Customer instance
      */
-    public static Customer create(User user, String firstName, String lastName, String phone) {
-        return new Customer(UUID.randomUUID(), user, firstName, lastName, phone, null);
+    public static Customer create(Store store,
+                                  User user,
+                                  String firstName,
+                                  String lastName,
+                                  String phone) {
+
+        return new Customer(
+                UUID.randomUUID(),
+                store,
+                user,
+                firstName,
+                lastName,
+                phone,
+                null
+        );
     }
 
     // ===== Business Methods =====
@@ -88,7 +113,7 @@ public class Customer {
      * @param phone     New phone number
      */
     public void updateProfile(String firstName, String lastName, String phone) {
-        validate(this.user, firstName, lastName, phone);
+        validate(this.store, this.user, firstName, lastName, phone);
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
@@ -104,13 +129,14 @@ public class Customer {
     }
 
     // ===== Validation =====
-    private void validate(User user, String firstName, String lastName, String phone) {
+    private void validate(Store store, User user, String firstName, String lastName, String phone) {
+        if (store == null) {
+            throw new DomainException("Store is required");
+        }
         if (user == null) {
             throw new DomainException("User is required");
         }
-        if (!"CUSTOMER".equals(user.getRole().name())) {
-            throw new DomainException("User must have CUSTOMER role");
-        }
+
         if (firstName == null || firstName.trim().length() < 2) {
             throw new DomainException("First name is required and must have at least 2 characters");
         }
@@ -124,6 +150,7 @@ public class Customer {
 
     // ===== Getters =====
     public UUID getId() { return id; }
+    public Store getStore() { return store; }
     public User getUser() { return user; }
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }

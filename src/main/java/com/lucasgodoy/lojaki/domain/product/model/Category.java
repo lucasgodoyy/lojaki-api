@@ -1,5 +1,6 @@
 package com.lucasgodoy.lojaki.domain.product.model;
 
+import com.lucasgodoy.lojaki.domain.store.model.Store;
 import com.lucasgodoy.lojaki.domain.exception.DomainException;
 
 import java.time.Instant;
@@ -7,15 +8,13 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Represents a product category in the system.
+ * Represents a product category owned by a store.
  *
  * This class belongs to the Domain layer and contains only
  * business rules and invariants.
  *
- * It does NOT depend on frameworks, persistence, or infrastructure.
- *
- * Relationships:
- * - 1 Category : N Products
+ * - Category belongs to ONE Store
+ * - Products can reference a Category
  */
 public class Category {
 
@@ -23,6 +22,11 @@ public class Category {
      * Unique identifier of the category.
      */
     private final UUID id;
+
+    /**
+     * Store that owns this category.
+     */
+    private final Store store;
 
     /**
      * Name of the category. Required, 2-100 characters.
@@ -50,9 +54,10 @@ public class Category {
     private Instant updatedAt;
 
     // ===== Private constructor =====
-    private Category(UUID id, String name) {
-        validateName(name);
+    private Category(UUID id, Store store, String name) {
+        validate(store, name);
         this.id = id;
+        this.store = store;
         this.name = name;
         this.active = true;
         this.deletedAt = null;
@@ -61,26 +66,25 @@ public class Category {
     }
 
     // ===== Factory Method =====
-
     /**
-     * Creates a new category instance.
+     * Creates a new Category instance.
      *
-     * @param name Category name
+     * @param store Store that owns the category
+     * @param name  Category name (2-100 characters)
      * @return New Category instance
      */
-    public static Category create(String name) {
-        return new Category(UUID.randomUUID(), name);
+    public static Category create(Store store, String name) {
+        return new Category(UUID.randomUUID(), store, name);
     }
 
     // ===== Business Methods =====
-
     /**
      * Updates the category's name.
      *
      * @param name New category name
      */
     public void update(String name) {
-        validateName(name);
+        validate(this.store, name);
         this.name = name;
         this.updatedAt = Instant.now();
     }
@@ -111,36 +115,23 @@ public class Category {
     }
 
     // ===== Validation =====
-    private void validateName(String name) {
+    private void validate(Store store, String name) {
+        if (store == null) {
+            throw new DomainException("Store is required for Category");
+        }
         if (name == null || name.trim().length() < 2 || name.trim().length() > 100) {
             throw new DomainException("Category name is required and must be between 2 and 100 characters");
         }
     }
 
     // ===== Getters =====
-    public UUID getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public Instant getDeletedAt() {
-        return deletedAt;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
+    public UUID getId() { return id; }
+    public Store getStore() { return store; }
+    public String getName() { return name; }
+    public boolean isActive() { return active; }
+    public Instant getDeletedAt() { return deletedAt; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
 
     // ===== Equals and HashCode =====
     @Override

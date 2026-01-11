@@ -3,12 +3,14 @@ package com.lucasgodoy.lojaki.domain.user.model;
 import java.util.UUID;
 
 /**
- * Represents a system user.
+ * Represents a system user in the platform.
  *
  * This class belongs to the Domain layer and contains only
  * business rules and invariants.
  *
- * It does NOT depend on frameworks, persistence, or infrastructure.
+ * Shopify-like model:
+ * - A User can own a Customer profile
+ * - A User can have different roles (ADMIN, CUSTOMER, etc.)
  */
 public class User {
 
@@ -21,24 +23,23 @@ public class User {
      * User email address.
      * Used as the main identification credential.
      */
-    private final String email;
+    private String email;
 
     /**
      * User role within the system.
      * Defines permissions and access level.
      */
-    private final Role role;
+    private Role role;
 
     /**
      * Indicates whether the user account is active.
      */
     private boolean active;
 
+    // ===== Protected Constructor =====
     /**
      * Protected constructor required by some frameworks
-     * (e.g. JPA, serialization tools).
-     *
-     * Not intended for direct use.
+     * (e.g., JPA, serialization tools). Not intended for direct use.
      */
     protected User() {
         this.id = null;
@@ -46,23 +47,18 @@ public class User {
         this.role = null;
     }
 
+    // ===== Factory / Constructor =====
     /**
-     * Creates a valid user instance.
+     * Creates a new User instance.
      *
-     * Business rules:
-     * - Email is mandatory
-     * - Role is mandatory
-     * - User starts as active by default
-     *
-     * @param id    unique identifier
-     * @param email user email
-     * @param role  user role
+     * @param id    Unique identifier
+     * @param email Email address (mandatory)
+     * @param role  Role of the user (mandatory)
      */
     public User(UUID id, String email, Role role) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email is required");
         }
-
         if (role == null) {
             throw new IllegalArgumentException("Role is required");
         }
